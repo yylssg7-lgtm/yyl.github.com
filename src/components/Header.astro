@@ -1,0 +1,80 @@
+---
+import { siteConfig } from "../config";
+---
+
+<header class="site-header" id="top">
+  <div class="header-inner page-shell">
+    <a class="brand" href="#top" aria-label={`${siteConfig.name}，返回顶部`}><span class="brand-mark">{siteConfig.initials}</span><span class="brand-name">{siteConfig.name}</span></a>
+    <nav class="desktop-nav" aria-label="主导航"><a href="#work"><span>作品</span></a><a href="#about"><span>关于</span></a><a href="#experience"><span>经历</span></a></nav>
+    <div class="header-actions"><a class="header-contact" href="#contact">联系说明 <span aria-hidden="true">↗</span></a><button class="menu-toggle" type="button" aria-label="打开导航菜单" aria-controls="mobile-nav" aria-expanded="false"><span></span><span></span></button></div>
+  </div>
+  <nav class="mobile-nav" id="mobile-nav" aria-label="手机导航" hidden><a href="#work">作品 <span>01</span></a><a href="#about">关于 <span>02</span></a><a href="#experience">经历 <span>03</span></a><a href="#contact">联系 <span>04</span></a></nav>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>(".menu-toggle");
+  const mobileNav = document.querySelector<HTMLElement>(".mobile-nav");
+  function closeMenu() {
+    if (!toggle || !mobileNav) return;
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-label", "打开导航菜单");
+    mobileNav.hidden = true;
+    document.body.classList.remove("menu-open");
+  }
+  toggle?.addEventListener("click", () => {
+    if (!mobileNav) return;
+    const open = toggle.getAttribute("aria-expanded") !== "true";
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "关闭导航菜单" : "打开导航菜单");
+    mobileNav.hidden = !open;
+    document.body.classList.toggle("menu-open", open);
+  });
+  mobileNav?.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeMenu(); });
+  window.matchMedia("(min-width: 761px)").addEventListener("change", closeMenu);
+
+  const desktopNav = document.querySelector<HTMLElement>(".desktop-nav");
+  const navLinks = [...(desktopNav?.querySelectorAll<HTMLAnchorElement>("a") ?? [])];
+  const magneticMotion = window.matchMedia("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)");
+  let navFrame = 0;
+  let pointerX = 0;
+  let pointerY = 0;
+
+  function resetMagnet() {
+    cancelAnimationFrame(navFrame);
+    navFrame = 0;
+    navLinks.forEach((link) => {
+      link.style.removeProperty("--magnet-x");
+      link.style.removeProperty("--magnet-y");
+      link.classList.remove("is-near");
+    });
+  }
+
+  function updateMagnet() {
+    navFrame = 0;
+    navLinks.forEach((link) => {
+      const rect = link.getBoundingClientRect();
+      const x = pointerX - rect.left - rect.width / 2;
+      const y = pointerY - rect.top - rect.height / 2;
+      const distance = Math.hypot(x, y);
+      const pull = Math.max(0, 1 - distance / 100) ** 2;
+      const shiftX = Math.max(-8, Math.min(8, x * pull * 0.7));
+      const shiftY = Math.max(-5, Math.min(5, y * pull * 0.7));
+
+      link.style.setProperty("--magnet-x", `${shiftX.toFixed(2)}px`);
+      link.style.setProperty("--magnet-y", `${shiftY.toFixed(2)}px`);
+      link.style.setProperty("--spot-x", `${pointerX - rect.left}px`);
+      link.style.setProperty("--spot-y", `${pointerY - rect.top}px`);
+      link.classList.toggle("is-near", pull > 0);
+    });
+  }
+
+  desktopNav?.addEventListener("pointermove", (event) => {
+    if (!magneticMotion.matches) return;
+    pointerX = event.clientX;
+    pointerY = event.clientY;
+    if (!navFrame) navFrame = requestAnimationFrame(updateMagnet);
+  }, { passive: true });
+  desktopNav?.addEventListener("pointerleave", resetMagnet);
+  magneticMotion.addEventListener("change", () => { if (!magneticMotion.matches) resetMagnet(); });
+</script>

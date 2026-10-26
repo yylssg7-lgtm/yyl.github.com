@@ -1,0 +1,16 @@
+---
+import { siteConfig } from "../config";
+import HeroSpecularButton from "./react/HeroSpecularButton.jsx";
+---
+
+<section class="hero page-shell" aria-labelledby="hero-title">
+  <div class="hero-copy">
+    <div class="eyebrow"><span class="eyebrow-line"></span> 个人简历 · 精选作品 <span class="eyebrow-index">/ 2026</span></div>
+    <h1 id="hero-title">用技术验证，<br /><span class="hero-name">用作品表达</span><span class="hero-period">。</span></h1>
+    <div class="hero-bottom">
+      <div class="hero-summary"><p class="hero-role">{siteConfig.role}</p><p class="hero-intro">{siteConfig.intro}</p><div class="hero-buttons"><HeroSpecularButton client:load /><a class="button button-quiet" href="#contact">联系说明 <span aria-hidden="true">→</span></a></div></div>
+      <div class="hero-aside" aria-label="作品状态"><span class="hero-aside-label">当前状态</span><span class="status"><span class="status-dot"></span>{siteConfig.availability}</span></div>
+    </div>
+  </div>
+  <div class="hero-visual" aria-hidden="true"><div class="visual-topline"><span>PROFILE / 001</span><span>SCROLL TO EXPLORE ↓</span></div><div class="visual-orbit orbit-one"></div><div class="visual-orbit orbit-two"></div><div class="visual-disc"><span>{siteConfig.initials}</span></div><div class="visual-bottomline"><span>思考 · 创造 · 交付</span><span>01 / {String(siteConfig.projects.length).padStart(2, "0")}</span></div></div>
+</section>

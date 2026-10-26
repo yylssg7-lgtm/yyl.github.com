@@ -1,0 +1,113 @@
+---
+import { siteConfig } from "../config";
+import ProjectCard from "./ProjectCard.astro";
+
+const practice = siteConfig.projects.slice(0, 2);
+const visual = siteConfig.projects.slice(2);
+---
+
+<section class="work-section" id="work" aria-labelledby="work-title">
+  <div class="page-shell">
+    <div class="section-heading reveal">
+      <div>
+        <span class="section-kicker">01 / SELECTED WORK</span>
+        <h2 id="work-title">用作品，<br />说明能力<span class="heading-period">。</span></h2>
+      </div>
+      <p>先看物联网测试实践，再看 AI 视觉与影像创作。每项都说明实际参与内容与可核实的交付。</p>
+    </div>
+
+    <div class="work-group-heading reveal">
+      <h3>物联网实践</h3>
+      <span>01 — 02</span>
+    </div>
+    <div class="projects-grid">
+      {practice.map((project) => <ProjectCard project={project} mode="practice" total={siteConfig.projects.length} />)}
+    </div>
+
+    <div class="showcase-heading reveal">
+      <div>
+        <span class="section-kicker">02 / VISUAL WORK</span>
+        <h3 id="visual-work-title">视觉创作，<br />逐个展开<span class="heading-period">。</span></h3>
+        <p>左右滑动浏览角色、天宫、短片与影像作品；点击图片可放大查看。</p>
+      </div>
+      <div class="showcase-controls" aria-label="视觉作品切换">
+        <span class="showcase-count" aria-live="polite"><strong>01</strong> / {String(visual.length).padStart(2, "0")}</span>
+        <button class="showcase-arrow" type="button" data-direction="previous" aria-label="上一件视觉作品">←</button>
+        <button class="showcase-arrow" type="button" data-direction="next" aria-label="下一件视觉作品">→</button>
+      </div>
+    </div>
+    <div class="showcase-track" role="region" aria-labelledby="visual-work-title" tabindex="0">
+      {visual.map((project) => <ProjectCard project={project} mode="showcase" total={siteConfig.projects.length} />)}
+    </div>
+    <div class="showcase-progress" aria-hidden="true"><span></span></div>
+  </div>
+</section>
+
+<dialog class="gallery-dialog" aria-label="作品图片预览">
+  <button class="gallery-close" type="button" aria-label="关闭图片预览">×</button>
+  <figure>
+    <img alt="" />
+    <figcaption></figcaption>
+  </figure>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>(".gallery-dialog");
+  const preview = dialog?.querySelector<HTMLImageElement>("figure img");
+  const caption = dialog?.querySelector<HTMLElement>("figcaption");
+
+  document.querySelectorAll<HTMLAnchorElement>(".gallery-tile, .project-main-image-link").forEach((tile) => {
+    tile.addEventListener("click", (event) => {
+      if (!dialog || !preview || !caption || typeof dialog.showModal !== "function") return;
+      event.preventDefault();
+      preview.src = tile.dataset.galleryImage || "";
+      preview.alt = tile.dataset.galleryAlt || "";
+      caption.textContent = tile.dataset.galleryTitle || "";
+      dialog.showModal();
+    });
+  });
+
+  dialog?.querySelector(".gallery-close")?.addEventListener("click", () => dialog.close());
+  dialog?.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  const track = document.querySelector<HTMLElement>(".showcase-track");
+  const cards = Array.from(track?.querySelectorAll<HTMLElement>(".project-card--showcase") ?? []);
+  const count = document.querySelector<HTMLElement>(".showcase-count strong");
+  const progress = document.querySelector<HTMLElement>(".showcase-progress span");
+  const previous = document.querySelector<HTMLButtonElement>('[data-direction="previous"]');
+  const next = document.querySelector<HTMLButtonElement>('[data-direction="next"]');
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let activeIndex = 0;
+  let frame = 0;
+
+  const updateControls = () => {
+    if (!track || !cards.length) return;
+    const trackLeft = track.getBoundingClientRect().left;
+    activeIndex = cards.reduce((closest, card, index) =>
+      Math.abs(card.getBoundingClientRect().left - trackLeft) < Math.abs(cards[closest].getBoundingClientRect().left - trackLeft)
+        ? index : closest, 0);
+    if (count) count.textContent = String(activeIndex + 1).padStart(2, "0");
+    if (progress) progress.style.width = `${((activeIndex + 1) / cards.length) * 100}%`;
+    if (previous) previous.disabled = activeIndex === 0;
+    if (next) next.disabled = activeIndex === cards.length - 1;
+  };
+
+  track?.addEventListener("scroll", () => {
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      updateControls();
+      frame = 0;
+    });
+  }, { passive: true });
+  window.addEventListener("resize", updateControls);
+  [previous, next].forEach((button) => button?.addEventListener("click", () => {
+    if (!track) return;
+    const step = button === next ? 1 : -1;
+    const target = cards[Math.max(0, Math.min(cards.length - 1, activeIndex + step))];
+    if (!target) return;
+    track.scrollTo({ left: target.offsetLeft, behavior: reducedMotion.matches ? "instant" : "smooth" });
+  }));
+  updateControls();
+</script>

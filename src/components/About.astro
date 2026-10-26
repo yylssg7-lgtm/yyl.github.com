@@ -1,0 +1,5 @@
+---
+import { siteConfig } from "../config";
+---
+
+<section class="about-section page-shell" id="about" aria-labelledby="about-title"><div class="section-heading reveal"><div><span class="section-kicker">02 / ABOUT & SKILLS</span><h2 id="about-title">我能带来<br />什么<span class="heading-period">。</span></h2></div><p>{siteConfig.about}</p></div><div class="capabilities">{siteConfig.capabilities.map((item) => <article class="capability reveal"><span class="capability-number">{item.number}</span><h3>{item.title}</h3><p>{item.description}</p><span class="capability-arrow" aria-hidden="true">↗</span></article>)}</div><div class="skills-row reveal"><span>工具与技能</span><div>{siteConfig.skills.map((skill) => <span>{skill}</span>)}</div></div></section>

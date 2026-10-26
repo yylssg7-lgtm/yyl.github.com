@@ -1,0 +1,42 @@
+---
+import { siteConfig } from "../config";
+---
+
+<section class="experience-section" id="experience" aria-labelledby="experience-title">
+  <div class="page-shell experience-layout">
+    <div class="experience-heading reveal">
+      <span class="section-kicker">03 / EXPERIENCE</span>
+      <h2 id="experience-title">一路走来，<br />持续进步<span class="heading-period">。</span></h2>
+      <p>保留实践方向与工作内容；具体单位、院校和时间暂不公开。</p>
+    </div>
+    <div>
+      <div class="experience-list">
+        {siteConfig.experience.map((item) => (
+          <article class="experience-item reveal">
+            <span class="experience-period">{item.period}</span>
+            <div>
+              <h3>{item.role}</h3>
+              <p class="experience-org">{item.organization}</p>
+              <p class="experience-desc">{item.description}</p>
+            </div>
+            <span class="experience-index" aria-hidden="true">↗</span>
+          </article>
+        ))}
+      </div>
+      <div class="credentials reveal" aria-label="教育与认证">
+        <span class="credentials-kicker">教育与认证</span>
+        <div class="credential-row">
+          <span class="experience-period">{siteConfig.education.period}</span>
+          <div>
+            <h3>{siteConfig.education.school}</h3>
+            <p>{siteConfig.education.degree}</p>
+          </div>
+        </div>
+        <div class="credential-row">
+          <span class="experience-period">职业认证</span>
+          <div><h3>{siteConfig.certification}</h3></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

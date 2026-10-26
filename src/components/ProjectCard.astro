@@ -1,0 +1,78 @@
+---
+import type { siteConfig } from "../config";
+
+type Project = (typeof siteConfig.projects)[number];
+
+interface Props {
+  project: Project;
+  mode: "practice" | "showcase";
+  total: number;
+}
+
+const { project, mode, total } = Astro.props;
+const portraitVideo = "mediaShape" in project && project.mediaShape === "portrait";
+---
+
+<article class:list={["project-card", `project-card--${mode}`, { "project-contain-image": project.imageContain, "project-portrait-video": portraitVideo }, "reveal"]}>
+  <div class:list={["project-image-wrap", { "project-video-wrap": Boolean(project.video) }]}>
+    {project.video ? (
+      <video controls preload="none" playsinline poster={project.image} aria-label={`${project.name}视频`}>
+        <source src={project.video} type="video/mp4" />
+        你的浏览器无法播放此视频。
+      </video>
+    ) : (
+      <a
+        class="project-main-image-link"
+        href={project.image}
+        data-gallery-image={project.image}
+        data-gallery-alt={project.imageAlt}
+        data-gallery-title={project.name}
+        aria-label={`放大查看${project.name}主图`}
+      >
+        <img src={project.image} alt={project.imageAlt} width="1200" height="800" loading="lazy" decoding="async" />
+      </a>
+    )}
+    <span class="project-image-label">{project.number} / {project.category}</span>
+  </div>
+  <div class="project-content">
+    <div class="project-topline">
+      <span>{project.category}</span>
+      <span>{project.number} / {String(total).padStart(2, "0")}</span>
+    </div>
+    <h4>{project.name}</h4>
+    <p class="project-summary">{project.summary}</p>
+    <p class="project-media-note">{project.mediaNote}</p>
+    <div class="project-evidence">
+      <div><span>我的贡献</span><p>{project.contribution}</p></div>
+      <div><span>项目结果</span><p>{project.outcome}</p></div>
+    </div>
+    <div class="project-footer">
+      <div class="project-tags">{project.tags.map((tag) => <span>{tag}</span>)}</div>
+      {project.url && (
+        <a href={project.url} target="_blank" rel="noopener noreferrer" aria-label={project.linkLabel}>
+          {project.linkLabel}<span aria-hidden="true">↗</span>
+        </a>
+      )}
+    </div>
+  </div>
+  {project.gallery.length > 0 && (
+    <div class="project-gallery">
+      <p class="project-gallery-title">作品画面 <span>点击图片放大查看</span></p>
+      <div class="project-gallery-grid">
+        {project.gallery.map((item, galleryIndex) => (
+          <a
+            class="gallery-tile"
+            href={item.image}
+            data-gallery-image={item.image}
+            data-gallery-alt={item.alt}
+            data-gallery-title={item.label}
+            aria-label={`放大查看${item.label}`}
+          >
+            <img src={item.image} alt={item.alt} width="800" height="600" loading="lazy" decoding="async" />
+            <span><b>{String(galleryIndex + 1).padStart(2, "0")}</b>{item.label}<i aria-hidden="true">↗</i></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
+</article>

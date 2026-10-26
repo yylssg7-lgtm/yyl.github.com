@@ -1,0 +1,71 @@
+---
+import Header from "../components/Header.astro";
+import Hero from "../components/Hero.astro";
+import Projects from "../components/Projects.astro";
+import About from "../components/About.astro";
+import Experience from "../components/Experience.astro";
+import Contact from "../components/Contact.astro";
+import Footer from "../components/Footer.astro";
+import { siteConfig } from "../config";
+import "../styles/global.css";
+
+const title = `${siteConfig.name} · ${siteConfig.role}`;
+const description = siteConfig.intro;
+const canonical = siteConfig.siteUrl ? new URL(Astro.url.pathname, siteConfig.siteUrl).toString() : undefined;
+const previewImage = canonical ? new URL("/images/share-preview.png", siteConfig.siteUrl).toString() : undefined;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f6f6f3" />
+    <meta name="description" content={description} />
+    {siteConfig.isDemo && <meta name="robots" content="noindex,nofollow" />}
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {previewImage && <meta property="og:image" content={previewImage} />}
+    {previewImage && <meta property="og:image:alt" content="物联网与 AI 创作作品集预览" />}
+    <meta name="twitter:card" content={previewImage ? "summary_large_image" : "summary"} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {previewImage && <meta name="twitter:image" content={previewImage} />}
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳转到正文</a>
+    {siteConfig.isDemo && <div class="demo-banner" role="note"><span class="demo-dot" aria-hidden="true"></span>本地预览版：物联网项目图片为示意图，创作素材的公开范围仍需核对。</div>}
+    <Header />
+    <main id="main"><Hero /><Projects /><About /><Experience /><Contact /></main>
+    <Footer />
+    <script>
+      const motion = window.matchMedia("(prefers-reduced-motion: no-preference)");
+      if (motion.matches && "IntersectionObserver" in window) {
+        const items = document.querySelectorAll<HTMLElement>(".reveal");
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { rootMargin: "0px 0px -35px 0px", threshold: 0.08 });
+        items.forEach((item) => observer.observe(item));
+        document.documentElement.classList.add("has-motion");
+        motion.addEventListener("change", (event) => {
+          if (!event.matches) {
+            observer.disconnect();
+            document.documentElement.classList.remove("has-motion");
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
